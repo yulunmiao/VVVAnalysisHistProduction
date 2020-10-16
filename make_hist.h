@@ -108,8 +108,10 @@ class HistCollection{
 	TH1F* hnjet_overlapremoved;
         TH1F* hnbloose;
         TH1F* hnbloose_overlapremoved;
+	TH1F* hnbloose_overlap;
 	TH1F* hnbmedium;
 	TH1F* hnbmedium_overlapremoved;
+	TH1F* hnbmedium_overlap;
         TH1F* hnfatjet;
         TH1F* hmll;
         TH1F* hst;
@@ -147,8 +149,10 @@ HistCollection::HistCollection(){
 	hnjet_overlapremoved=new TH1F("hnjet_overlapremoved","number of jets;n_{jet};Events",10,0,10);
         hnbloose=	new TH1F("hnbloose","number of loose b jets;n_{bjet};Events",10,0,10);
         hnbloose_overlapremoved=new TH1F("hnbloose_overlapremoved","number of loose b jets;n_{bjet};Events",10,0,10);
+	hnbloose_overlap=new TH1F("hnbloose_overlap","nubmer of loose b jets;n_{bjet};Events",10,0,10);
 	hnbmedium=	new TH1F("hnbmedium","number of medium b jets;n_{bjet};Events",10,0,10);
         hnbmedium_overlapremoved=new TH1F("hbmedium_overlapremoved","number of medium b jets;n_{bjet};Events",10,0,10);
+	hnbmedium_overlap=new TH1F("hnbmedium_overlap","nubmer of medium b jets;n_{bjet};Events",10,0,10);
         hnfatjet=	new TH1F("hnfatjet","number of fatjets;n_{fatjet};Events",5,0,5);
         hmll=		new TH1F("hmll","invariant mass of lepton pair;m_{ll};Events",1000,0,1000);
         hst=		new TH1F("hst","S_{T};S_{T}(GeV);Events",2000,0,2000);
@@ -181,8 +185,10 @@ HistCollection::~HistCollection(){
 	delete hnjet_overlapremoved;
         delete hnbloose;
         delete hnbloose_overlapremoved;
+	delete hnbloose_overlap;
 	delete hnbmedium;
         delete hnbmedium_overlapremoved;
+	delete hnbmedium_overlap;
         delete hnfatjet;
         delete hmll;
         delete hst;
@@ -287,7 +293,7 @@ bool HistCollection::Fill(const float lumi,const float cross_section,const char*
 				evt.njet_overlapremoved++;
 			}
 			if(jetbloose->at(ijet)){
-				evt.nbloose=0;
+				evt.nbloose++;
 				if(!overlap) evt.nbloose_overlapremoved++;
 			}
 			if(jetbmedium->at(ijet)){
@@ -325,8 +331,10 @@ bool HistCollection::Fill(const float lumi,const float cross_section,const char*
 			hnjet_overlapremoved->Fill(evt.njet_overlapremoved,evt.scale);
 			hnbloose->Fill(evt.nbloose,			evt.scale);
 			hnbloose_overlapremoved->Fill(evt.nbloose_overlapremoved,evt.scale);
+			hnbloose_overlap->Fill(evt.nbloose-evt.nbloose_overlapremoved,evt.scale);
 			hnbmedium->Fill(evt.nbmedium,			evt.scale);
 			hnbmedium_overlapremoved->Fill(evt.nbmedium_overlapremoved,evt.scale);
+			hnbmedium_overlap->Fill(evt.nbmedium-evt.nbmedium_overlapremoved,evt.scale);
 			hnfatjet->Fill(evt.fatjet.size(),		evt.scale);
 			hmll->Fill(evt.mll,				evt.scale);
 			hst->Fill(evt.st,				evt.scale);
@@ -365,8 +373,10 @@ bool HistCollection::Write(const char* path){
 	hnjet_overlapremoved->Write();
         hnbloose->Write();
         hnbloose_overlapremoved->Write();
+	hnbloose_overlap->Write();
 	hnbmedium->Write();
         hnbmedium_overlapremoved->Write();
+	hnbmedium_overlap->Write();
         hnfatjet->Write();
         hmll->Write();
         hst->Write();
