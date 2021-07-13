@@ -51,5 +51,6 @@ then
 	hadd $dir/WJetsToLNu_HT-800To1200.root $jobdir/$year/WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8*/output*
 	hadd $dir/WJetsToLNu_HT-1200To2500.root $jobdir/$year/WJetsToLNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM-pythia8*/output*
         hadd $dir/WJetsToLNu_HT-2500ToInf.root $jobdir/$year/WJetsToLNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM-pythia8*/output*
+	hadd $dir/TTTT.root $jobdir/$year/TTTT_TuneCP5_13TeV-amcatnlo-pythia8*/output*
 	hadd $dir/WWW.root $jobdir/$year/WWW_4F_TuneCP5_13TeV-amcatnlo-pythia8*/output*
 fi
