@@ -4,14 +4,13 @@
 class SignalRegion:public HistCollection{
 	protected:
 		bool cut(Event &evt){
-			if(evt.fatjet.size()==0) return true;
-			return false;
+			return true;
 		}
 };
 int make_hist(){
 	//WWW
 	SignalRegion *WWW=new SignalRegion;
-	WWW->Fill(LUMI,0.2086,"./WWW.root");
+	WWW->Fill(LUMI,0.2086,"../MC/2018/WWW.root");
 	WWW->Write("./hWWW.root");
 	delete WWW;
 	//WWW

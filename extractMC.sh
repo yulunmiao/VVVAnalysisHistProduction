@@ -13,12 +13,12 @@ then
 fi
 
 year=$1
-dir=./MC/$year
+dir=../MC/$year
 jobdir=$2
 
-if [ ! -d ./MC ]
+if [ ! -d ../MC ]
 then
-	mkdir ./MC
+	mkdir ../MC
 fi
 
 if [ -d $dir ]

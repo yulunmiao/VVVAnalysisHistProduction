@@ -114,15 +114,18 @@ class HistCollection{
 	TH1F* hdeltaRll;
         TH1F* hdeltaphill;
 	TH2F* hpt1pt2;
+
+	vector<long long> checkDuplicates;
 	virtual bool cut(Event &evt);
         public:
         HistCollection();
         ~HistCollection();
         bool Write(const char* path);
-        bool Fill(const float lumi,const float cross_section, const char *path);
+        bool Fill(const char *path);
 };
 
 HistCollection::HistCollection(){
+	checkDuplicates.clear();
 	htotal=		new TH1F("total","total;;Events",1,0,1);
         hlep1pt=	new TH1F("hlep1pt","leading lepton p_{T};p_{T}(GeV);Events",1000,0.,1000.);
         hlep2pt=	new TH1F("hlep2pt","trailing lepton p_{T};p_{T}(GeV);Events",1000,0.,1000.);
@@ -146,7 +149,7 @@ HistCollection::HistCollection(){
         hnlep=		new TH1F("hnlep","number of leptons;n_{lepton};Events",5,0,5);
         hnjet=		new TH1F("hnjet","number of jets;n_{jet};Events",10,0,10);
 	hnjet_overlapremoved=new TH1F("hnjet_overlapremoved","number of jets;n_{jet};Events",10,0,10);
-        hnbloose=	new TH1F("hnbloose","number of loose b jets;n_{bjet};Events",10,0,10);
+        hnbloose=	new TH1F("hnbloose","number of loose b jets;n_{bjet};Events",5,-.5,4.5);
 	hnbmedium=	new TH1F("hnbmedium","number of medium b jets;n_{bjet};Events",5,-.5,4.5);
         hnfatjet=	new TH1F("hnfatjet","number of fatjets;n_{fatjet};Events",5,0,5);
         hmll=		new TH1F("hmll","invariant mass of lepton pair;m_{ll};Events",1000,0,1000);
@@ -198,7 +201,7 @@ bool HistCollection::cut(Event &evt){
 }
 
 
-bool HistCollection::Fill(const float lumi,const float cross_section,const char* path){
+bool HistCollection::Fill(const char* path){
         TChain *chain=new TChain("t");
 	Event evt;
         vector<LV> *lepp4=0,*jetp4=0,*fatjetp4=0;
@@ -233,7 +236,7 @@ bool HistCollection::Fill(const float lumi,const float cross_section,const char*
 	chain->Add(path);
         TFile *file=TFile::Open(path);
         if(!file->IsOpen()) return false;
-        evt.scale= cross_section * 1000 * lumi / ((TH1F*) file->Get("Wgt__h_nevents"))->Integral();
+        evt.scale= 1;
         for(unsigned int i=0;i<chain->GetEntries();i++){
                 chain->GetEntry(i);
 		//build the event
