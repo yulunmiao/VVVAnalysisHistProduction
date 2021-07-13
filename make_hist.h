@@ -114,15 +114,18 @@ class HistCollection{
 	TH1F* hdeltaRll;
         TH1F* hdeltaphill;
 	TH2F* hpt1pt2;
+
+	vector<long long> checkDuplicates;
 	virtual bool cut(Event &evt);
         public:
         HistCollection();
         ~HistCollection();
         bool Write(const char* path);
-        bool Fill(const float lumi,const float cross_section, const char *path);
+        bool Fill(const float lumi,const float cross_section,const char* path);
 };
 
 HistCollection::HistCollection(){
+	checkDuplicates.clear();
 	htotal=		new TH1F("total","total;;Events",1,0,1);
         hlep1pt=	new TH1F("hlep1pt","leading lepton p_{T};p_{T}(GeV);Events",1000,0.,1000.);
         hlep2pt=	new TH1F("hlep2pt","trailing lepton p_{T};p_{T}(GeV);Events",1000,0.,1000.);
@@ -146,7 +149,7 @@ HistCollection::HistCollection(){
         hnlep=		new TH1F("hnlep","number of leptons;n_{lepton};Events",5,0,5);
         hnjet=		new TH1F("hnjet","number of jets;n_{jet};Events",10,0,10);
 	hnjet_overlapremoved=new TH1F("hnjet_overlapremoved","number of jets;n_{jet};Events",10,0,10);
-        hnbloose=	new TH1F("hnbloose","number of loose b jets;n_{bjet};Events",10,0,10);
+        hnbloose=	new TH1F("hnbloose","number of loose b jets;n_{bjet};Events",5,-.5,4.5);
 	hnbmedium=	new TH1F("hnbmedium","number of medium b jets;n_{bjet};Events",5,-.5,4.5);
         hnfatjet=	new TH1F("hnfatjet","number of fatjets;n_{fatjet};Events",5,0,5);
         hmll=		new TH1F("hmll","invariant mass of lepton pair;m_{ll};Events",1000,0,1000);
@@ -206,7 +209,7 @@ bool HistCollection::Fill(const float lumi,const float cross_section,const char*
 	vector<bool> *jetbloose=0,*jetbmedium=0;
 	vector<float> *fatjetsdm=0,*tau21=0,*tau2=0,*tau1=0,*deepMDW=0,*deepW=0,*deepMDZ=0,*deepZ=0,*deepT=0,*deepMDbb=0;
 	vector<int> *leptight=0,*WPid=0;
-	int nbmedium,nbloose,run;
+	int nbmedium,nbloose,run,isData;
 	unsigned long long event;
 	chain->SetBranchAddress("Common_lep_tight",		&leptight);
         chain->SetBranchAddress("Common_lep_p4",                &lepp4);
@@ -230,13 +233,28 @@ bool HistCollection::Fill(const float lumi,const float cross_section,const char*
         chain->SetBranchAddress("Common_met_p4",		&met);
 	chain->SetBranchAddress("Common_run",			&run);
 	chain->SetBranchAddress("Common_evt",			&event);
+	chain->SetBranchAddress("Common_isData",		&isData);
 	chain->Add(path);
-        TFile *file=TFile::Open(path);
-        if(!file->IsOpen()) return false;
-        evt.scale= cross_section * 1000 * lumi / ((TH1F*) file->Get("Wgt__h_nevents"))->Integral();
+	TFile *file=TFile::Open(path);
+	if(!file->IsOpen()) return false;
+	evt.scale = cross_section * 1000 * lumi / ((TH1F*) file->Get("Wgt__h_nevents"))->Integral();
         for(unsigned int i=0;i<chain->GetEntries();i++){
                 chain->GetEntry(i);
 		//build the event
+		if(isData){
+			bool duplicates=false;
+			long long RUNPREF=1000*1000;
+			long long dupCheck = run*RUNPREF + event;
+			for (unsigned int uid = 0; uid < checkDuplicates.size(); uid++){
+				if (checkDuplicates[uid] == dupCheck){
+					duplicates=true;
+					break;
+				}
+			}
+			if(duplicates==true) continue;
+			checkDuplicates.push_back(dupCheck);
+			evt.scale=1;
+		}//reset the scale factor and duplicate removal for data
 		evt.lep.clear();
 		evt.fatjet.clear();
 		evt.jet.clear();
@@ -319,7 +337,6 @@ bool HistCollection::Fill(const float lumi,const float cross_section,const char*
 			hlep2eta->Fill(evt.lep.at(1).eta,		evt.scale);
 			hlep1phi->Fill(evt.lep.at(0).phi,		evt.scale);
 			hlep2phi->Fill(evt.lep.at(1).phi,		evt.scale);
-			
 			hfatjetpt->Fill(evt.fatjet.at(0).pt,		evt.scale);
 			hfatjeteta->Fill(evt.fatjet.at(0).eta,		evt.scale);
 			hfatjetphi->Fill(evt.fatjet.at(0).phi,		evt.scale);
