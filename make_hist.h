@@ -35,6 +35,7 @@ struct LepInfo{
         float pt;
         float eta;
         float phi;
+	float tight;
 };
 
 struct FatJetInfo{
@@ -51,6 +52,7 @@ struct FatJetInfo{
         float deepZ;
         float deepT;
         float deepMDbb;
+	float WPid;
 };
 
 struct JetInfo{
@@ -116,7 +118,10 @@ class HistCollection{
 	TH2F* hpt1pt2;
 
 	vector<long long> checkDuplicates;
-	virtual bool cut(Event &evt);
+	virtual bool Cut(const Event &evt);
+	virtual bool LepID(const LepInfo &lep);
+	virtual bool FatJetID(const FatJetInfo &fatjet);
+	virtual bool JetID(const JetInfo &jet);
         public:
         HistCollection();
         ~HistCollection();
@@ -196,10 +201,21 @@ HistCollection::~HistCollection(){
 
 }
 
-bool HistCollection::cut(Event &evt){
+bool HistCollection::Cut(const Event &evt){
         return true;
 }
 
+bool HistCollection::LepID(const LepInfo &lep){
+	return true;
+}
+
+bool HistCollection::FatJetID(const FatJetInfo &fatjet){
+	return true;
+}
+
+bool HistCollection::JetID(const JetInfo &jet){
+	return true;
+}
 
 bool HistCollection::Fill(const float lumi,const float cross_section,const char* path){
         TChain *chain=new TChain("t");
@@ -271,8 +287,10 @@ bool HistCollection::Fill(const float lumi,const float cross_section,const char*
 			temp.pt=lepp4->at(ilep).pt();
 			temp.eta=lepp4->at(ilep).eta();
 			temp.phi=lepp4->at(ilep).phi();
+			temp.tight=leptight->at(ilep);
 
 			if(leptight->at(ilep)==0) continue;
+//			if(!LepID(temp)) continue;
 			evt.lep.push_back(temp);
 			evt.st+=lepp4->at(ilep).pt();
 		}
@@ -292,8 +310,10 @@ bool HistCollection::Fill(const float lumi,const float cross_section,const char*
 			temp.deepZ=deepZ->at(ifatjet);
 			temp.deepT=deepT->at(ifatjet);
 			temp.deepMDbb=deepMDbb->at(ifatjet);
+			temp.WPid=WPid->at(ifatjet);
 
 			if(!(WPid->at(ifatjet)>=1)) continue;
+//			if(!FatJetID(temp)) continue;
 			evt.fatjet.push_back(temp);
 			evt.st+=fatjetp4->at(ifatjet).pt();
 			evt.ht+=fatjetp4->at(ifatjet).pt();
@@ -329,7 +349,7 @@ bool HistCollection::Fill(const float lumi,const float cross_section,const char*
 		evt.deltaphill=fabs(ROOT::Math::VectorUtil::DeltaPhi(lepp4->at(0),lepp4->at(1)));
 		//build the event
 		//fill in histograms
-		if(cut(evt)){//addition cut
+		if(Cut(evt)){//addition cut
 			htotal->Fill(0.,				evt.scale);
 			hlep1pt->Fill(evt.lep.at(0).pt,			evt.scale);
 			hlep2pt->Fill(evt.lep.at(1).pt,			evt.scale);
