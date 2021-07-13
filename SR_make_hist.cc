@@ -4,7 +4,14 @@
 
 class SignalRegion:public HistCollection{
 	protected:
-		bool cut(Event &evt){
+		bool LepID(const LepInfo &lep){
+			return (lep.tight==1);
+		}
+
+		bool FatJetID(const FatJetInfo &fatjet){
+			return (fatjet.WPid>=1);
+		}
+		bool Cut(const Event &evt){
 			if(!(evt.lep.size()==2)) return false;
 			if(!(evt.fatjet.size()==1)) return false;
 			if(!(evt.nbmedium==0)) return false;

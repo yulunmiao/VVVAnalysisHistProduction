@@ -131,7 +131,7 @@ class HistCollection{
 
 HistCollection::HistCollection(){
 	checkDuplicates.clear();
-	htotal=		new TH1F("total","total;;Events",1,0,1);
+	htotal=		new TH1F("htotal","total;;Events",1,0,1);
         hlep1pt=	new TH1F("hlep1pt","leading lepton p_{T};p_{T}(GeV);Events",1000,0.,1000.);
         hlep2pt=	new TH1F("hlep2pt","trailing lepton p_{T};p_{T}(GeV);Events",1000,0.,1000.);
         hlep1eta=	new TH1F("hlep1eta","leading lepton #eta;#eta;Events",600,-2.5,2.5);
@@ -289,8 +289,7 @@ bool HistCollection::Fill(const float lumi,const float cross_section,const char*
 			temp.phi=lepp4->at(ilep).phi();
 			temp.tight=leptight->at(ilep);
 
-			if(leptight->at(ilep)==0) continue;
-//			if(!LepID(temp)) continue;
+			if(!LepID(temp)) continue;
 			evt.lep.push_back(temp);
 			evt.st+=lepp4->at(ilep).pt();
 		}
@@ -312,8 +311,7 @@ bool HistCollection::Fill(const float lumi,const float cross_section,const char*
 			temp.deepMDbb=deepMDbb->at(ifatjet);
 			temp.WPid=WPid->at(ifatjet);
 
-			if(!(WPid->at(ifatjet)>=1)) continue;
-//			if(!FatJetID(temp)) continue;
+			if(!FatJetID(temp)) continue;
 			evt.fatjet.push_back(temp);
 			evt.st+=fatjetp4->at(ifatjet).pt();
 			evt.ht+=fatjetp4->at(ifatjet).pt();
@@ -334,6 +332,7 @@ bool HistCollection::Fill(const float lumi,const float cross_section,const char*
 				}				
 			}
 			temp.overlapwithfatjet=overlap;
+			if(!JetID(temp)) continue;
 			evt.jet.push_back(temp);
 			if(!overlap){
 				evt.st+=jetp4->at(ijet).pt();
