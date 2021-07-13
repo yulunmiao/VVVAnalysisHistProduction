@@ -1,5 +1,5 @@
 #include "Color.h"
-#define NAME "total"
+#define NAME "htotal"
 #define NBIN 1
 
 int CR_ttbar_total(){
@@ -62,6 +62,11 @@ int CR_ttbar_total(){
         cout<<"WWW	"<<hWWW->GetBinContent(1)<<"	"<<hWWW->GetBinError(1)<<endl;
 	//WWW
 	*/
+	TFile *fTTTT = new TFile("../hist/CR_ttbar/hTTTT.root");
+        TH1F *hTTTT = (TH1F*) fTTTT->Get(NAME);
+        hTTTT->SetFillColor(kOrange);
+        cout<<"TTTT	"<<hTTTT->GetBinContent(1)<<"	"<<hTTTT->GetBinError(1)<<endl;
+
 	//data
 	TFile *fdata= new TFile("../hist/CR_ttbar/hdata.root");
 	TH1F *hdata = (TH1F*) fdata->Get(NAME);
@@ -81,6 +86,7 @@ int CR_ttbar_total(){
 	hs->Add(hWW);
 	hs->Add(hZZ);
 	hs->Add(hWjets);
+	hs->Add(hTTTT);
 	l->AddEntry(httbar,"t#bar{t}","f");
 	l->AddEntry(httW,"ttW","f");
         l->AddEntry(httZ,"ttZ","f");
@@ -89,10 +95,11 @@ int CR_ttbar_total(){
         l->AddEntry(hWW,"WW","f");
         l->AddEntry(hZZ,"ZZ","f");
         l->AddEntry(hWjets,"W+jets","f");
+	l->AddEntry(hTTTT,"TTTT","f");
 
 	TH1F *hbkg=new TH1F;
 	TH1F *hratio=new TH1F;
-	*hbkg=*httbar+*httW+*httZ+*hDY+*hWZ+*hWW+*hZZ+*hWjets;
+	*hbkg=*httbar+*httW+*httZ+*hDY+*hWZ+*hWW+*hZZ+*hWjets+*hTTTT;
 
 	cout<<"MC     "<<hbkg->GetBinContent(1)<<"   "<<hbkg->GetBinError(1)<<endl;
 
