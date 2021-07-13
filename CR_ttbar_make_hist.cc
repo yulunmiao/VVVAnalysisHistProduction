@@ -87,6 +87,12 @@ int CR_ttbar_make_hist(){
 	WWW->Write("../hist/CR_ttbar/hWWW.root");
 	delete WWW;
 	//WWW
+	//TTTT
+	ControlRegion_ttbar *TTTT=new ControlRegion_ttbar;
+	TTTT->Fill(LUMI2018,0.009103,"../MC/2018/TTTT.root");
+	TTTT->Write("../hist/CR_ttbar/hTTTT.root");
+	delete TTTT;
+	//TTTT
 	//data
         ControlRegion_ttbar *data=new ControlRegion_ttbar;
         data->Fill(0,0,"../data/2018/DoubleMuon.root");

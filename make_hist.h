@@ -223,8 +223,9 @@ bool HistCollection::Fill(const float lumi,const float cross_section,const char*
         vector<LV> *lepp4=0,*jetp4=0,*fatjetp4=0;
 	LV *met=0;
 	vector<bool> *jetbloose=0,*jetbmedium=0;
-	vector<float> *fatjetsdm=0,*tau21=0,*tau2=0,*tau1=0,*deepMDW=0,*deepW=0,*deepMDZ=0,*deepZ=0,*deepT=0,*deepMDbb=0;
+	vector<float> *fatjetsdm=0,*tau21=0,*tau2=0,*tau1=0,*deepMDW=0,*deepW=0,*deepMDZ=0,*deepZ=0,*deepT=0,*deepMDbb=0,*EFT=0;
 	vector<int> *leptight=0,*WPid=0;
+	float lepSF,fatjetSF;
 	int nbmedium,nbloose,run,isData;
 	unsigned long long event;
 	chain->SetBranchAddress("Common_lep_tight",		&leptight);
@@ -250,13 +251,21 @@ bool HistCollection::Fill(const float lumi,const float cross_section,const char*
 	chain->SetBranchAddress("Common_run",			&run);
 	chain->SetBranchAddress("Common_evt",			&event);
 	chain->SetBranchAddress("Common_isData",		&isData);
+	chain->SetBranchAddress("Common_LHEWeight_mg_reweighting", &EFT);
+	//scale factors
+	chain->SetBranchAddress("Common_event_lepSF",		&lepSF);
+	chain->SetBranchAddress("Common_eventweight_fatjet_SFLoose",&fatjetSF);
 	chain->Add(path);
 	TFile *file=TFile::Open(path);
+	float scale;
 	if(!file->IsOpen()) return false;
-	evt.scale = cross_section * 1000 * lumi / ((TH1F*) file->Get("Wgt__h_nevents"))->Integral();
+	scale = cross_section * 1000 * lumi / ((TH1F*) file->Get("Wgt__h_nevents"))->Integral();
         for(unsigned int i=0;i<chain->GetEntries();i++){
                 chain->GetEntry(i);
+		if(EFT->size()!=0)      scale = cross_section * 1000 * lumi / ((TH1F*) file->Get("Root__h_Common_LHEWeight_mg_reweighting_times_genWeight"))->GetBinContent(1);
+
 		//build the event
+		//scale factors
 		if(isData){
 			bool duplicates=false;
 			long long RUNPREF=1000*1000;
@@ -271,6 +280,9 @@ bool HistCollection::Fill(const float lumi,const float cross_section,const char*
 			checkDuplicates.push_back(dupCheck);
 			evt.scale=1;
 		}//reset the scale factor and duplicate removal for data
+		else{
+			evt.scale = scale * lepSF * fatjetSF; //* fatjetSF;
+		}//include the scale factor of lepton and fatjet for MC
 		evt.lep.clear();
 		evt.fatjet.clear();
 		evt.jet.clear();
