@@ -1,0 +1,2 @@
+rootcling  dict.cxx -rml libmylib.so -rmf myrootmap.rootmap LinkDef.h
+g++ -o libmylib.so dict.cxx `root-config --cflags --libs` -shared -fPIC
